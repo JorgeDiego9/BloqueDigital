@@ -97,6 +97,43 @@
   .btn-ghost:hover{ color:var(--charcoal); }
   .copiado{ font-family:'IBM Plex Mono', monospace; font-size:.78rem; color:var(--yellow-dark); display:none; align-self:center; }
   .copiado.show{ display:inline; }
+
+  /* ---------- LINK AL PANEL ---------- */
+  .panel-link{ font-family:'IBM Plex Mono', monospace; font-size:.78rem; color:var(--slate); text-decoration:underline; }
+  .panel-link:hover{ color:var(--charcoal); }
+
+  /* ---------- PANEL ADMIN ---------- */
+  .panel-overlay{
+    position:fixed; inset:0; z-index:200; background:rgba(30,28,26,.55);
+    display:flex; align-items:center; justify-content:center; padding:24px;
+    opacity:0; visibility:hidden; transition:opacity .3s var(--ease), visibility .3s;
+  }
+  .panel-overlay.open{ opacity:1; visibility:visible; }
+  .panel-modal{
+    background:var(--white); width:100%; max-width:760px; max-height:86vh; overflow-y:auto;
+    padding:36px 34px; position:relative;
+  }
+  .panel-head{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:24px; }
+  .panel-head .eyebrow{ font-family:'IBM Plex Mono', monospace; font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:var(--yellow-dark); }
+  .panel-close{ width:32px; height:32px; border-radius:50%; background:var(--concrete); font-size:1.2rem; line-height:1; cursor:pointer; }
+
+  .login-box{ max-width:320px; margin:20px auto; text-align:center; }
+  .login-box h4{ font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:1.1rem; margin:10px 0 22px; }
+  .login-box .field{ text-align:left; }
+  .login-box .btn{ width:100%; justify-content:center; margin-top:6px; }
+  .login-error{ display:none; margin-top:12px; font-size:.8rem; color:var(--danger); }
+  .login-error.show{ display:block; }
+
+  .panel-stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:26px; }
+  .panel-stat{ background:var(--concrete); padding:16px; text-align:center; }
+  .panel-stat .num{ font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:1.5rem; }
+  .panel-stat .label{ font-family:'IBM Plex Mono', monospace; font-size:.66rem; letter-spacing:.05em; text-transform:uppercase; color:var(--slate); margin-top:4px; }
+
+  .panel-table{ width:100%; border-collapse:collapse; font-size:.85rem; }
+  .panel-table th{ text-align:left; font-family:'IBM Plex Mono', monospace; font-size:.66rem; letter-spacing:.05em; text-transform:uppercase; color:var(--slate); border-bottom:2px solid var(--charcoal); padding:8px 6px; }
+  .panel-table td{ padding:10px 6px; border-bottom:1px solid var(--line); vertical-align:top; }
+  .panel-table select{ font-family:'IBM Plex Mono', monospace; font-size:.72rem; padding:5px 6px; border:1px solid var(--line); background:var(--white); }
+  .panel-empty{ text-align:center; color:var(--slate); padding:30px 0; font-size:.9rem; }
 </style>
 </head>
 <body>
@@ -109,6 +146,7 @@
       <div class="brand-tag">Reserva tu proyecto</div>
     </div>
   </div>
+  <p style="margin-bottom:20px;"><a href="#" id="openPanel" class="panel-link">Ver historial de pedidos (admin)</a></p>
 
   <div class="progress" id="progress">
     <div class="block"></div><div class="block"></div><div class="block"></div>
@@ -178,6 +216,42 @@
   </div>
 </div>
 
+<div class="panel-overlay" id="panelOverlay">
+  <div class="panel-modal">
+    <div class="panel-head">
+      <div>
+        <span class="eyebrow">Panel del negocio</span>
+        <h3 class="display">Historial de pedidos</h3>
+      </div>
+      <button class="panel-close" id="closePanel" aria-label="Cerrar">&times;</button>
+    </div>
+
+    <div id="loginBox" class="login-box">
+      <span class="eyebrow" style="color:var(--yellow-dark);">Acceso administrador</span>
+      <h4>Inicia sesión para ver los pedidos</h4>
+      <div class="field"><label for="loginEmail">Correo</label><input type="email" id="loginEmail"></div>
+      <div class="field"><label for="loginPassword">Contraseña</label><input type="password" id="loginPassword"></div>
+      <button class="btn btn-primary" id="loginBtn" type="button">Entrar</button>
+      <p class="login-error" id="loginError">Correo o contraseña incorrectos.</p>
+    </div>
+
+    <div id="panelContent" style="display:none;">
+      <div class="panel-stats">
+        <div class="panel-stat"><span class="num" id="statTotal">0</span><span class="label">Pedidos totales</span></div>
+        <div class="panel-stat"><span class="num" id="statHoy">0</span><span class="label">Hoy</span></div>
+        <div class="panel-stat"><span class="num" id="statMonto">$0</span><span class="label">En anticipos</span></div>
+      </div>
+      <table class="panel-table">
+        <thead><tr><th>Folio</th><th>Fecha</th><th>Negocio</th><th>Paquete</th><th>Anticipo</th><th>Estado</th></tr></thead>
+        <tbody id="panelBody"></tbody>
+      </table>
+      <p class="panel-empty" id="panelEmpty" style="display:none;">Aún no hay pedidos registrados.</p>
+      <button class="btn btn-ghost" id="logoutBtn" type="button" style="margin-top:18px;">Cerrar sesión</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const paquetes = [
     { id: 'basico', nombre: 'Básico', desc: 'Landing de una sección', precio: 5000 },
@@ -244,60 +318,6 @@
   });
   document.getElementById('btnAtras3').addEventListener('click', () => irAPaso(2));
 
-  // ==================================================================
-  // CONEXIÓN A SUPABASE — reemplaza con los datos de tu proyecto
-  // Settings → API → Project URL / anon public key
-  // ==================================================================
-  document.getElementById('btnConfirmar').addEventListener('click', async () => {
-    const btn = document.getElementById('btnConfirmar');
-    const errorEl = document.getElementById('errorPaso3');
-    btn.disabled = true;
-    btn.textContent = 'Guardando...';
-
-    const nombre = document.getElementById('fNombre').value.trim();
-    const negocio = document.getElementById('fNegocio').value.trim();
-    const correo = document.getElementById('fCorreo').value.trim();
-    const telefono = document.getElementById('fTelefono').value.trim();
-    const descripcion = document.getElementById('fDescripcion').value.trim();
-    const anticipo = Math.round(seleccionado.precio * 0.5);
-    const folio = 'BD-' + Date.now().toString().slice(-8);
-
-    try {
-      const SUPABASE_URL = 'https://txdggrjhjzypzkerwhjo.supabase.co';
-      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4ZGdncmpoanp5cHprZXJ3aGpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzODk0ODcsImV4cCI6MjA5ODk2NTQ4N30.Bn4S8sIYT8hTzrEAXgmp85vK-GmNbqsyoM6h7c6fZJo';
-      if (typeof window.supabase === 'undefined') throw new Error('Supabase no cargó');
-      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-      const { error } = await supabase.from('pedidos').insert([{
-        folio, paquete: seleccionado.nombre, precio: seleccionado.precio, anticipo,
-        nombre, negocio, correo, telefono, descripcion
-      }]);
-      if (error) throw error;
-
-      document.getElementById('folioTexto').textContent = folio;
-      document.getElementById('confirmLista').innerHTML = `
-        <li><span class="k">Paquete</span><span>${seleccionado.nombre}</span></li>
-        <li><span class="k">Precio total</span><span>$${seleccionado.precio.toLocaleString('es-MX')} MXN</span></li>
-        <li><span class="k">Anticipo</span><span>$${anticipo.toLocaleString('es-MX')} MXN</span></li>
-        <li><span class="k">Negocio</span><span>${negocio}</span></li>
-        <li><span class="k">Contacto</span><span>${correo}</span></li>
-      `;
-      window._resumenTexto = `Reservación Bloque Digital
-Folio: ${folio}
-Paquete: ${seleccionado.nombre} — $${seleccionado.precio.toLocaleString('es-MX')} MXN
-Anticipo: $${anticipo.toLocaleString('es-MX')} MXN
-Negocio: ${negocio}
-Contacto: ${nombre} — ${correo} — ${telefono}`;
-
-      irAPaso(4);
-    } catch (err) {
-      console.error(err);
-      errorEl.classList.add('show');
-    }
-    btn.disabled = false;
-    btn.textContent = 'Confirmar reservación (prueba)';
-  });
-
   document.getElementById('btnCopiarResumen').addEventListener('click', () => {
     const area = document.createElement('textarea');
     area.value = window._resumenTexto || '';
@@ -309,7 +329,156 @@ Contacto: ${nombre} — ${correo} — ${telefono}`;
     msg.classList.add('show');
     setTimeout(() => msg.classList.remove('show'), 2000);
   });
+
+  // ==================================================================
+  // CONEXIÓN A SUPABASE — reemplaza con los datos de tu proyecto
+  // Settings → API → Project URL / anon public key
+  // ==================================================================
+  try {
+    const SUPABASE_URL = 'https://txdggrjhjzypzkerwhjo.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4ZGdncmpoanp5cHprZXJ3aGpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzODk0ODcsImV4cCI6MjA5ODk2NTQ4N30.Bn4S8sIYT8hTzrEAXgmp85vK-GmNbqsyoM6h7c6fZJo';
+    if (typeof window.supabase === 'undefined') throw new Error('Supabase no cargó');
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ---- Confirmar reservación (guarda el pedido) ----
+    document.getElementById('btnConfirmar').addEventListener('click', async () => {
+      const btn = document.getElementById('btnConfirmar');
+      const errorEl = document.getElementById('errorPaso3');
+      btn.disabled = true;
+      btn.textContent = 'Guardando...';
+
+      const nombre = document.getElementById('fNombre').value.trim();
+      const negocio = document.getElementById('fNegocio').value.trim();
+      const correo = document.getElementById('fCorreo').value.trim();
+      const telefono = document.getElementById('fTelefono').value.trim();
+      const descripcion = document.getElementById('fDescripcion').value.trim();
+      const anticipo = Math.round(seleccionado.precio * 0.5);
+      const folio = 'BD-' + Date.now().toString().slice(-8);
+
+      try {
+        const { error } = await supabase.from('pedidos').insert([{
+          folio, paquete: seleccionado.nombre, precio: seleccionado.precio, anticipo,
+          nombre, negocio, correo, telefono, descripcion
+        }]);
+        if (error) throw error;
+
+        document.getElementById('folioTexto').textContent = folio;
+        document.getElementById('confirmLista').innerHTML = `
+          <li><span class="k">Paquete</span><span>${seleccionado.nombre}</span></li>
+          <li><span class="k">Precio total</span><span>$${seleccionado.precio.toLocaleString('es-MX')} MXN</span></li>
+          <li><span class="k">Anticipo</span><span>$${anticipo.toLocaleString('es-MX')} MXN</span></li>
+          <li><span class="k">Negocio</span><span>${negocio}</span></li>
+          <li><span class="k">Contacto</span><span>${correo}</span></li>
+        `;
+        window._resumenTexto = `Reservación Bloque Digital
+Folio: ${folio}
+Paquete: ${seleccionado.nombre} — $${seleccionado.precio.toLocaleString('es-MX')} MXN
+Anticipo: $${anticipo.toLocaleString('es-MX')} MXN
+Negocio: ${negocio}
+Contacto: ${nombre} — ${correo} — ${telefono}`;
+
+        irAPaso(4);
+      } catch (err) {
+        console.error(err);
+        errorEl.classList.add('show');
+      }
+      btn.disabled = false;
+      btn.textContent = 'Confirmar reservación (prueba)';
+    });
+
+    // ---- Panel de administrador: abrir / cerrar ----
+    document.getElementById('openPanel').addEventListener('click', async (e) => {
+      e.preventDefault();
+      document.getElementById('panelOverlay').classList.add('open');
+      const { data } = await supabase.auth.getSession();
+      if (data.session) { mostrarPanel(); cargarPedidos(); }
+      else { mostrarLogin(); }
+    });
+    document.getElementById('closePanel').addEventListener('click', () => {
+      document.getElementById('panelOverlay').classList.remove('open');
+    });
+    document.getElementById('panelOverlay').addEventListener('click', (e) => {
+      if (e.target.id === 'panelOverlay') e.target.classList.remove('open');
+    });
+
+    function mostrarLogin(){
+      document.getElementById('loginBox').style.display = 'block';
+      document.getElementById('panelContent').style.display = 'none';
+    }
+    function mostrarPanel(){
+      document.getElementById('loginBox').style.display = 'none';
+      document.getElementById('panelContent').style.display = 'block';
+    }
+
+    // ---- Login del administrador ----
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const errorEl = document.getElementById('loginError');
+      try {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        errorEl.classList.remove('show');
+        mostrarPanel();
+        cargarPedidos();
+      } catch (err) {
+        errorEl.textContent = err.message || 'Correo o contraseña incorrectos.';
+        errorEl.classList.add('show');
+      }
+    });
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      mostrarLogin();
+    });
+
+    // ---- Cargar y mostrar el historial de pedidos ----
+    async function cargarPedidos(){
+      try {
+        const { data, error } = await supabase.from('pedidos').select('*').order('fecha', { ascending: false });
+        if (error) throw error;
+        renderPanel(data || []);
+      } catch (err) {
+        console.error('Error cargando pedidos:', err);
+      }
+    }
+
+    function renderPanel(lista){
+      const hoy = new Date().toDateString();
+      const montoTotal = lista.reduce((sum, p) => sum + Number(p.anticipo || 0), 0);
+
+      document.getElementById('statTotal').textContent = lista.length;
+      document.getElementById('statHoy').textContent = lista.filter(p => new Date(p.fecha).toDateString() === hoy).length;
+      document.getElementById('statMonto').textContent = '$' + montoTotal.toLocaleString('es-MX');
+      document.getElementById('panelEmpty').style.display = lista.length ? 'none' : 'block';
+
+      document.getElementById('panelBody').innerHTML = lista.map(p => `
+        <tr>
+          <td class="mono">${p.folio}</td>
+          <td class="mono">${new Date(p.fecha).toLocaleDateString('es-MX', { day:'2-digit', month:'short' })}</td>
+          <td>${p.negocio}<br><span style="color:var(--slate); font-size:.78rem;">${p.nombre}</span></td>
+          <td>${p.paquete}</td>
+          <td class="mono">$${Number(p.anticipo).toLocaleString('es-MX')}</td>
+          <td>
+            <select data-id="${p.id}">
+              <option value="reservado_demo" ${p.estado === 'reservado_demo' ? 'selected' : ''}>Reservado (demo)</option>
+              <option value="anticipo_confirmado" ${p.estado === 'anticipo_confirmado' ? 'selected' : ''}>Anticipo confirmado</option>
+              <option value="en_proceso" ${p.estado === 'en_proceso' ? 'selected' : ''}>En proceso</option>
+              <option value="entregado" ${p.estado === 'entregado' ? 'selected' : ''}>Entregado</option>
+            </select>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    document.getElementById('panelBody').addEventListener('change', async (e) => {
+      if (e.target.tagName !== 'SELECT') return;
+      const id = e.target.dataset.id;
+      await supabase.from('pedidos').update({ estado: e.target.value }).eq('id', id);
+    });
+
+  } catch (err) {
+    console.error('No se pudo inicializar Supabase:', err);
+  }
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </body>
 </html>
