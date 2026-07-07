@@ -224,6 +224,7 @@
       <ul class="incluye" id="paqueteIncluye"></ul>
       <div class="notas" id="notas"></div>
       <div class="result-actions">
+        <a href="checkout-bloque-digital.html" id="btnReservar" class="btn btn-primary" style="text-decoration:none;">Reservar este paquete →</a>
         <button class="btn btn-primary" id="btnCopiar">Copiar resumen</button>
         <button class="btn btn-ghost" id="btnReiniciar">Empezar de nuevo</button>
         <span class="copiado" id="copiadoMsg">✓ Copiado</span>
@@ -464,6 +465,7 @@
 
     const notas = notasArr.join(' ');
     document.getElementById('notas').innerHTML = `<strong>Notas:</strong> ${notas}`;
+    document.getElementById('btnReservar').href = `checkout-bloque-digital.html?paquete=${key}`;
 
     window._resumenTexto = `Cotización Bloque Digital
 Paquete recomendado: ${pack.nombre}
