@@ -40,20 +40,10 @@
     gap:12px;
     margin-bottom:36px;
   }
-  .brand-mark{
-    width:34px; height:34px;
-    background:var(--charcoal);
-    position:relative;
-    flex-shrink:0;
-  }
-  .brand-mark::after{
-    content:'';
-    position:absolute;
-    right:-7px; bottom:-7px;
-    width:34px; height:34px;
-    background:var(--yellow);
-    z-index:-1;
-  }
+  .brand-mark{ width:26px; height:26px; position:relative; flex-shrink:0; }
+  .brand-mark .b1{ position:absolute; left:0; bottom:0; width:7px; height:12px; background:var(--slate); }
+  .brand-mark .b2{ position:absolute; left:10px; bottom:0; width:7px; height:19px; background:var(--charcoal); }
+  .brand-mark .b3{ position:absolute; left:20px; bottom:0; width:7px; height:26px; background:var(--yellow); }
   .brand-name{ font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:1.15rem; letter-spacing:-.01em; }
   .brand-tag{ font-family:'IBM Plex Mono', monospace; font-size:.68rem; letter-spacing:.08em; text-transform:uppercase; color:var(--slate); margin-top:2px; }
 
@@ -204,7 +194,7 @@
 
 <div class="app">
   <div class="brand">
-    <div class="brand-mark"></div>
+    <div class="brand-mark"><div class="b1"></div><div class="b2"></div><div class="b3"></div></div>
     <div>
       <div class="brand-name">BLOQUE DIGITAL</div>
       <div class="brand-tag">Cotizador de proyectos web</div>
@@ -294,6 +284,41 @@
       opciones: [
         { texto: 'Sí, ya tengo uno', puntos: 0 },
         { texto: 'No, necesito ayuda para conseguirlo', puntos: 0 }
+      ]
+    },
+    {
+      id: 'tipoProyecto',
+      texto: '¿Es un proyecto nuevo o quiere mejorar una página que ya tiene?',
+      opciones: [
+        { texto: 'Nueva, empezamos desde cero', puntos: 0 },
+        { texto: 'Ya tengo una página y quiero mejorarla', puntos: 0 }
+      ]
+    },
+    {
+      id: 'contenido',
+      texto: '¿Ya tiene fotos, textos y logo listos para usar?',
+      opciones: [
+        { texto: 'Sí, todo listo', puntos: 0 },
+        { texto: 'Tengo algo, falta organizarlo', puntos: 0 },
+        { texto: 'No tengo nada todavía', puntos: 0 }
+      ]
+    },
+    {
+      id: 'plazo',
+      texto: '¿En cuánto tiempo la necesita?',
+      opciones: [
+        { texto: 'Sin prisa, 1-2 meses está bien', puntos: 0 },
+        { texto: 'Normal, en 2-4 semanas', puntos: 0 },
+        { texto: 'Urgente, en menos de 2 semanas', puntos: 0 }
+      ]
+    },
+    {
+      id: 'mantenimiento',
+      texto: '¿Le interesa contratar mantenimiento mensual desde ahora?',
+      opciones: [
+        { texto: 'Sí, quiero incluirlo', puntos: 0 },
+        { texto: 'Tal vez más adelante', puntos: 0 },
+        { texto: 'No por ahora', puntos: 0 }
       ]
     }
   ];
@@ -407,12 +432,37 @@
 
     const idxWhatsapp = preguntas.findIndex(p => p.id === 'whatsapp');
     const idxDominio = preguntas.findIndex(p => p.id === 'dominio');
+    const idxTipoProyecto = preguntas.findIndex(p => p.id === 'tipoProyecto');
+    const idxContenido = preguntas.findIndex(p => p.id === 'contenido');
+    const idxPlazo = preguntas.findIndex(p => p.id === 'plazo');
+    const idxMantenimiento = preguntas.findIndex(p => p.id === 'mantenimiento');
+
     const quiereWhatsapp = respuestas[idxWhatsapp] === 1;
     const tieneDominio = respuestas[idxDominio] === 0;
+    const esActualizacion = respuestas[idxTipoProyecto] === 1;
+    const sinContenido = respuestas[idxContenido] === 2;
+    const esUrgente = respuestas[idxPlazo] === 2;
+    const quiereMantenimiento = respuestas[idxMantenimiento] === 0;
 
-    let notas = 'Mantenimiento mensual opcional: $300 – $800 MXN/mes.';
-    if (quiereWhatsapp) notas += ' Se incluye conexión directa a WhatsApp desde el formulario, sin costo extra.';
-    if (!tieneDominio) notas += ' Falta cotizar el dominio propio aparte (~$300–800 MXN/año).';
+    const notasArr = [];
+    if (esActualizacion) {
+      notasArr.push('Como ya tiene una página, esto probablemente sea un upgrade en vez de un proyecto nuevo: de Básico a Profesional ($6,000–$9,000 MXN) o de Profesional a Premium ($10,000–$16,000 MXN), según lo que ya tenga construido.');
+    }
+    if (sinContenido) {
+      notasArr.push('Como aún no tiene fotos, textos ni logo, hay que sumar tiempo (y posiblemente costo) para ayudarle a organizarlos antes de empezar a construir.');
+    }
+    if (esUrgente) {
+      notasArr.push('Pidió el proyecto en menos de 2 semanas — un plazo urgente puede llevar un cargo adicional por prioridad.');
+    }
+    if (quiereMantenimiento) {
+      notasArr.push('Quiere mantenimiento mensual desde ahora: $500 MXN/mes, incluye cambios de texto/fotos y hosting administrado.');
+    } else {
+      notasArr.push('Mantenimiento mensual disponible como opción a futuro: $500 MXN/mes.');
+    }
+    if (quiereWhatsapp) notasArr.push('Se incluye conexión directa a WhatsApp desde el formulario, sin costo extra.');
+    if (!tieneDominio) notasArr.push('Falta cotizar el dominio propio aparte (~$300–800 MXN/año).');
+
+    const notas = notasArr.join(' ');
     document.getElementById('notas').innerHTML = `<strong>Notas:</strong> ${notas}`;
 
     window._resumenTexto = `Cotización Bloque Digital
