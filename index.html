@@ -109,6 +109,11 @@
   /* ---------- HERO ---------- */
   .hero{
     padding:192px 0 0;
+    position:relative;
+  }
+  .hero::before{
+    content:'';
+    position:absolute; inset:0; z-index:0; pointer-events:none;
     background-image:
       linear-gradient(var(--line-soft) 1px, transparent 1px),
       linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
@@ -117,7 +122,8 @@
     -webkit-mask-image:linear-gradient(180deg, black 0%, black 55%, transparent 96%);
     mask-image:linear-gradient(180deg, black 0%, black 55%, transparent 96%);
   }
-  .hero-inner{ padding-bottom:70px; }
+  .hero-inner{ padding-bottom:70px; position:relative; z-index:1; }
+  .hero-baseline{ position:relative; z-index:1; }
   .hero-grid{ display:grid; grid-template-columns:1.1fr .9fr; gap:50px; align-items:center; }
   @media (max-width:900px){ .hero-grid{ grid-template-columns:1fr; } }
   .hero h1{
@@ -154,7 +160,7 @@
   .block3d .face-back{ width:var(--w); height:var(--h); transform:rotateY(180deg) translateZ(calc(var(--d) / 2)); }
   .block3d .face-right{ width:var(--d); height:var(--h); transform:rotateY(90deg) translateZ(calc(var(--w) / 2)); }
   .block3d .face-left{ width:var(--d); height:var(--h); transform:rotateY(-90deg) translateZ(calc(var(--w) / 2)); }
-  .block3d .face-top{ width:var(--w); height:var(--d); transform:rotateX(90deg) translateZ(calc(var(--h) / 2)); display:flex; align-items:center; justify-content:center; }
+  .block3d .face-top{ width:var(--w); height:var(--d); top:calc((var(--h) - var(--d)) / 2); transform:rotateX(90deg) translateZ(calc(var(--h) / 2)); display:flex; align-items:center; justify-content:center; }
   .block3d .face-top span{ font-family:'IBM Plex Mono', monospace; font-size:.62rem; font-weight:600; letter-spacing:.04em; transform:scale(1,-1); }
 
   .b-b{ --h:96px; }
@@ -258,8 +264,9 @@
     padding:48px 42px; position:relative; overflow:hidden;
   }
   .cotiza-box::before{
-    content:''; position:absolute; top:-40%; right:-20%; width:220px; height:220px;
-    background:radial-gradient(circle, rgba(242,183,5,.16), transparent 70%);
+    content:''; position:absolute; top:10%; right:5%; width:180px; height:180px;
+    background:radial-gradient(circle, rgba(242,183,5,.18), transparent 70%);
+    pointer-events:none;
   }
   .cotiza-box p{ color:var(--concrete); margin:14px 0 26px; position:relative; }
   .cotiza-box .plan-tag{ position:relative; }
