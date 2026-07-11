@@ -218,13 +218,16 @@
   .plan-tag{ font-family:'IBM Plex Mono', monospace; font-size:.68rem; letter-spacing:.1em; text-transform:uppercase; color:var(--yellow-dark); }
   .plan.destacado .plan-tag{ color:var(--yellow); }
   .plan-nombre{ font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:1.45rem; margin:11px 0 6px; letter-spacing:-.01em; }
-  .plan-precio{ font-family:'IBM Plex Mono', monospace; font-size:1.05rem; margin-bottom:24px; color:var(--slate); }
+  .plan-precio{ font-family:'IBM Plex Mono', monospace; font-size:1.05rem; margin-bottom:6px; color:var(--slate); }
   .plan.destacado .plan-precio{ color:var(--concrete); }
+  .plan-subtitulo{ font-size:.85rem; color:var(--slate-soft); margin-bottom:22px; }
+  .plan.destacado .plan-subtitulo{ color:var(--slate-soft); }
   .plan-lista{ list-style:none; flex:1; }
   .plan-lista li{ padding:9px 0; border-top:1px solid var(--line); font-size:.9rem; }
   .plan.destacado .plan-lista li{ border-top:1px solid rgba(250,248,245,.14); }
   .plan-lista li::before{ content:'▪ '; color:var(--yellow-dark); }
   .plan.destacado .plan-lista li::before{ color:var(--yellow); }
+  .plan-lista li b{ font-weight:600; }
 
   /* ---------- PROCESO ---------- */
   .proceso-list{ margin-top:50px; display:grid; grid-template-columns:repeat(4,1fr); gap:26px; }
@@ -492,7 +495,7 @@
           </div>
         </div>
         <div class="blocks-caption">
-          <span>$4,500+</span><span>$8,000+</span><span>$18,000+</span>
+          <span>$6,000</span><span>$12,000</span><span>$22,000</span>
         </div>
       </div>
     </div>
@@ -527,7 +530,7 @@
       <div class="porque-item reveal">
         <div class="mark">$</div>
         <h4>Precio claro desde el inicio</h4>
-        <p>Usas el cotizador y sabes el rango de precio antes de comprometerte a nada.</p>
+        <p>Usas el cotizador y sabes el precio exacto de tu proyecto antes de comprometerte a nada.</p>
       </div>
       <div class="porque-item reveal">
         <div class="mark">◧</div>
@@ -582,7 +585,7 @@
     </div>
     <div class="cotiza-box reveal">
       <span class="plan-tag" style="color:var(--yellow);">2 minutos</span>
-      <p>Responde 10 preguntas cortas y descubre qué paquete le conviene a tu negocio, con precio estimado incluido — sin compromiso.</p>
+      <p>Responde 10 preguntas cortas y descubre qué paquete le conviene a tu negocio, con precio exacto incluido — sin compromiso.</p>
       <a href="cotizador-bloque-digital.html" class="btn btn-yellow" target="_blank">Abrir cotizador →</a>
     </div>
   </div>
@@ -599,34 +602,41 @@
       <div class="plan reveal">
         <span class="plan-tag">Nivel 1</span>
         <div class="plan-nombre">Básico</div>
-        <div class="plan-precio">$4,500 – $6,500 MXN</div>
+        <div class="plan-precio">$6,000 MXN</div>
+        <div class="plan-subtitulo">Para negocios que apenas necesitan presencia digital.</div>
         <ul class="plan-lista">
-          <li>Landing de una sección, diseño a medida</li>
-          <li>Responsive en cualquier pantalla</li>
-          <li>Formulario conectado a correo/WhatsApp</li>
-          <li>1 ronda de ajustes</li>
+          <li><b>Página de una sola sección (landing)</b>, con diseño hecho a tu medida — no una plantilla genérica</li>
+          <li><b>Se ve bien en cualquier pantalla:</b> celular, tablet o computadora</li>
+          <li><b>Formulario de contacto</b> que te llega directo a tu correo o WhatsApp</li>
+          <li>Hasta 10 fotos de tu negocio o productos</li>
+          <li>1 ronda de cambios después de la primera entrega</li>
         </ul>
       </div>
       <div class="plan destacado reveal">
         <span class="plan-tag">Nivel 2 · Más elegido</span>
         <div class="plan-nombre">Profesional</div>
-        <div class="plan-precio">$8,000 – $14,000 MXN</div>
+        <div class="plan-precio">$12,000 MXN</div>
+        <div class="plan-subtitulo">Para negocios que venden productos o servicios y necesitan verse serios.</div>
         <ul class="plan-lista">
-          <li>Sitio completo con catálogo y filtros</li>
-          <li>Base de datos real para tus mensajes</li>
-          <li>Animaciones y diseño a medida</li>
-          <li>2 rondas de ajustes</li>
+          <li>Todo lo del plan Básico</li>
+          <li><b>Sitio con varias secciones o páginas</b> (catálogo, nosotros, contacto, etc.)</li>
+          <li><b>Catálogo con filtros:</b> tus productos organizados por categoría, para que el cliente encuentre rápido lo que busca</li>
+          <li><b>Base de datos real:</b> cada mensaje o pedido que te manden queda guardado — no se pierde aunque cierres WhatsApp o borres el correo</li>
+          <li>Animaciones y detalles visuales a la medida de tu marca</li>
+          <li>2 rondas de cambios</li>
         </ul>
       </div>
       <div class="plan reveal">
         <span class="plan-tag">Nivel 3</span>
         <div class="plan-nombre">Premium</div>
-        <div class="plan-precio">$18,000 – $30,000 MXN</div>
+        <div class="plan-precio">$22,000 MXN</div>
+        <div class="plan-subtitulo">Para negocios que quieren controlar todo desde su propio sistema.</div>
         <ul class="plan-lista">
-          <li>Panel de administración con login</li>
-          <li>Varios administradores, cada uno con su acceso</li>
-          <li>Estadísticas en vivo</li>
-          <li>SEO básico + soporte prioritario</li>
+          <li>Todo lo del plan Profesional</li>
+          <li><b>Panel de administrador propio:</b> entras con tu usuario y contraseña y ves todos tus pedidos o mensajes organizados</li>
+          <li><b>Varios administradores:</b> puedes dar acceso a más personas de tu equipo, cada quien con su propio usuario</li>
+          <li><b>Estadísticas en vivo:</b> cuántos pedidos llevas, cuántos son de hoy — sin tener que contarlos a mano</li>
+          <li><b>SEO básico</b> (para que te encuentren mejor en Google) + soporte prioritario los primeros 30 días</li>
         </ul>
       </div>
     </div>
@@ -675,7 +685,7 @@
       <div class="paso reveal">
         <span class="n mono">01</span>
         <h4>Cotización</h4>
-        <p>Respondes unas preguntas cortas y sabes el paquete y precio antes de comprometerte a nada.</p>
+        <p>Respondes unas preguntas cortas y sabes el paquete y precio exacto antes de comprometerte a nada.</p>
       </div>
       <div class="paso reveal">
         <span class="n mono">02</span>

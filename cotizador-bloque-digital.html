@@ -157,7 +157,8 @@
 
   .paquete-nombre{ font-size:.75rem; letter-spacing:.1em; text-transform:uppercase; color:var(--yellow-dark); font-family:'IBM Plex Mono', monospace; }
   .paquete-titulo{ font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:2rem; margin:8px 0 6px; }
-  .paquete-precio{ font-family:'IBM Plex Mono', monospace; font-size:1.3rem; color:var(--charcoal); margin-bottom:22px; }
+  .paquete-precio{ font-family:'IBM Plex Mono', monospace; font-size:1.3rem; color:var(--charcoal); margin-bottom:8px; }
+  .paquete-subtitulo{ font-size:.92rem; color:var(--slate); margin-bottom:22px; }
 
   .incluye{ list-style:none; margin-bottom:24px; }
   .incluye li{
@@ -169,6 +170,7 @@
   }
   .incluye li:last-child{ border-bottom:1px solid var(--line); }
   .incluye li::before{ content:'▪'; color:var(--yellow-dark); }
+  .incluye li b{ font-weight:600; }
 
   .notas{
     background:var(--concrete);
@@ -221,6 +223,7 @@
       <div class="paquete-nombre">Recomendación</div>
       <div class="paquete-titulo" id="paqueteTitulo"></div>
       <div class="paquete-precio" id="paquetePrecio"></div>
+      <div class="paquete-subtitulo" id="paqueteSubtitulo"></div>
       <ul class="incluye" id="paqueteIncluye"></ul>
       <div class="notas" id="notas"></div>
       <div class="result-actions">
@@ -241,7 +244,7 @@
       opciones: [
         { texto: 'Una sola página (landing)', puntos: 0 },
         { texto: 'Varias secciones: catálogo, nosotros, contacto', puntos: 2 },
-        { texto: 'Un sistema completo con panel propio', puntos: 4 }
+        { texto: 'Un sistema completo con panel propio', puntos: 5 }
       ]
     },
     {
@@ -268,7 +271,7 @@
       opciones: [
         { texto: 'Solo el dueño', puntos: 0 },
         { texto: 'El dueño y un empleado de confianza', puntos: 2 },
-        { texto: 'Varias personas, cada una con su acceso', puntos: 3 }
+        { texto: 'Varias personas, cada una con su acceso', puntos: 5 }
       ]
     },
     {
@@ -327,38 +330,42 @@
   const paquetes = {
     basico: {
       nombre: 'Básico — Presencia digital',
-      precio: '$4,500 – $6,500 MXN',
+      precio: '$6,000 MXN',
+      subtitulo: 'Para negocios que apenas necesitan presencia digital.',
       bloques: 3,
       incluye: [
-        'Página de una sola sección, diseño a la medida',
-        'Responsive: se ve bien en cualquier pantalla',
-        'Formulario de contacto conectado a correo/WhatsApp',
-        'Hasta 10 fotos de producto',
-        '1 ronda de ajustes'
+        '<b>Página de una sola sección (landing)</b>, con diseño hecho a tu medida — no una plantilla genérica',
+        '<b>Se ve bien en cualquier pantalla:</b> celular, tablet o computadora',
+        '<b>Formulario de contacto</b> que te llega directo a tu correo o WhatsApp',
+        'Hasta 10 fotos de tu negocio o productos',
+        '1 ronda de cambios después de la primera entrega'
       ]
     },
     profesional: {
       nombre: 'Profesional — Negocio completo',
-      precio: '$8,000 – $14,000 MXN',
+      precio: '$12,000 MXN',
+      subtitulo: 'Para negocios que venden productos o servicios y necesitan verse serios.',
       bloques: 6,
       incluye: [
         'Todo lo del plan Básico',
-        'Sitio de varias secciones con catálogo y filtros',
-        'Base de datos real para guardar los mensajes',
-        'Animaciones y detalles de diseño a medida',
-        '2 rondas de ajustes'
+        '<b>Sitio con varias secciones o páginas</b> (catálogo, nosotros, contacto, etc.)',
+        '<b>Catálogo con filtros:</b> tus productos organizados por categoría, para que el cliente encuentre rápido lo que busca',
+        '<b>Base de datos real:</b> cada mensaje o pedido que te manden queda guardado — no se pierde aunque cierres WhatsApp o borres el correo',
+        'Animaciones y detalles visuales a la medida de tu marca',
+        '2 rondas de cambios'
       ]
     },
     premium: {
       nombre: 'Premium — Negocio con panel propio',
-      precio: '$18,000 – $30,000 MXN',
+      precio: '$22,000 MXN',
+      subtitulo: 'Para negocios que quieren controlar todo desde su propio sistema.',
       bloques: 10,
       incluye: [
         'Todo lo del plan Profesional',
-        'Panel de administración con login propio',
-        'Cuentas para varios administradores',
-        'Estadísticas y control de mensajes en vivo',
-        'SEO básico + soporte prioritario 30 días'
+        '<b>Panel de administrador propio:</b> entras con tu usuario y contraseña y ves todos tus pedidos o mensajes organizados',
+        '<b>Varios administradores:</b> puedes dar acceso a más personas de tu equipo, cada quien con su propio usuario',
+        '<b>Estadísticas en vivo:</b> cuántos pedidos llevas, cuántos son de hoy — sin tener que contarlos a mano',
+        '<b>SEO básico</b> (para que te encuentren mejor en Google) + soporte prioritario los primeros 30 días'
       ]
     }
   };
@@ -402,15 +409,33 @@
     if (paso > 0) { paso--; renderPregunta(); }
   });
 
+  // ====================================================================
+  // CÁLCULO DEL PAQUETE RECOMENDADO
+  // --------------------------------------------------------------------
+  // Antes esto se decidía solo por puntaje acumulado, lo que a veces
+  // recomendaba "Profesional" aunque el cliente hubiera pedido, en otras
+  // preguntas, cosas que SOLO trae Premium (panel propio, varios
+  // administradores). Ahora, si el cliente pide explícitamente alguna
+  // de esas dos cosas, el resultado se va directo a Premium sin importar
+  // el puntaje de las demás respuestas — porque pedir un panel con login
+  // o varios accesos ES pedir Premium, por definición del paquete.
+  // ====================================================================
   function calcularPaquete(){
-    const puntos = ['secciones','catalogo','mensajes','administradores'].reduce((sum, id, idx) => {
+    const idxSecciones = preguntas.findIndex(p => p.id === 'secciones');
+    const idxAdministradores = preguntas.findIndex(p => p.id === 'administradores');
+
+    const pidioPanelPropio = respuestas[idxSecciones] === 2; // "Un sistema completo con panel propio"
+    const pidioVariosAdmins = respuestas[idxAdministradores] === 2; // "Varias personas, cada una con su acceso"
+
+    const puntos = ['secciones','catalogo','mensajes','administradores'].reduce((sum, id) => {
       const i = preguntas.findIndex(p => p.id === id);
       const r = respuestas[i];
       return sum + (r !== null ? preguntas[i].opciones[r].puntos : 0);
     }, 0);
-    if (puntos <= 3) return 'basico';
-    if (puntos <= 7) return 'profesional';
-    return 'premium';
+
+    if (pidioPanelPropio || pidioVariosAdmins || puntos >= 10) return 'premium';
+    if (puntos >= 3) return 'profesional';
+    return 'basico';
   }
 
   function mostrarResultado(){
@@ -422,6 +447,7 @@
 
     document.getElementById('paqueteTitulo').textContent = pack.nombre;
     document.getElementById('paquetePrecio').textContent = pack.precio;
+    document.getElementById('paqueteSubtitulo').textContent = pack.subtitulo;
     document.getElementById('paqueteIncluye').innerHTML = pack.incluye.map(t => `<li>${t}</li>`).join('');
 
     const torre = document.getElementById('torre');
@@ -447,7 +473,7 @@
 
     const notasArr = [];
     if (esActualizacion) {
-      notasArr.push('Como ya tiene una página, esto probablemente sea un upgrade en vez de un proyecto nuevo: de Básico a Profesional ($6,000–$9,000 MXN) o de Profesional a Premium ($10,000–$16,000 MXN), según lo que ya tenga construido.');
+      notasArr.push('Como ya tiene una página, esto probablemente sea un upgrade en vez de un proyecto nuevo: de Básico a Profesional ($7,500 MXN) o de Profesional a Premium ($13,000 MXN), según lo que ya tenga construido.');
     }
     if (sinContenido) {
       notasArr.push('Como aún no tiene fotos, textos ni logo, hay que sumar tiempo (y posiblemente costo) para ayudarle a organizarlos antes de empezar a construir.');
@@ -467,11 +493,13 @@
     document.getElementById('notas').innerHTML = `<strong>Notas:</strong> ${notas}`;
     document.getElementById('btnReservar').href = `checkout-bloque-digital.html?paquete=${key}`;
 
+    const incluyeTexto = pack.incluye.map(t => '- ' + t.replace(/<\/?b>/g, '')).join('\n');
     window._resumenTexto = `Cotización Bloque Digital
 Paquete recomendado: ${pack.nombre}
-Precio estimado: ${pack.precio}
+Precio: ${pack.precio}
+${pack.subtitulo}
 Incluye:
-${pack.incluye.map(t => '- ' + t).join('\n')}
+${incluyeTexto}
 ${notas}`;
   }
 
