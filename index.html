@@ -110,6 +110,10 @@
   .hero{
     padding:192px 0 0;
     position:relative;
+    z-index:0; /* crea un contexto de apilamiento propio: la imagen de
+                  fondo (z-index:-1) queda encerrada aquí adentro, detrás
+                  de TODO lo del hero (incluida la franja de marquee),
+                  y no se escapa a pintarse encima de nada */
   }
   .hero::before{
     content:'';
@@ -122,6 +126,37 @@
     -webkit-mask-image:linear-gradient(180deg, black 0%, black 55%, transparent 96%);
     mask-image:linear-gradient(180deg, black 0%, black 55%, transparent 96%);
   }
+
+  /* FONDO DE IMAGEN DEL HERO — imagen1.png (mismo tratamiento que en
+     Braita). Si el archivo no existe todavía, el onerror del <img>
+     oculta la capa completa y el hero se ve exactamente igual que antes.
+     z-index:-1 la deja detrás de TODO (incluyendo la franja del marquee),
+     evitando el bug de que se pinte encima de secciones estáticas. */
+  .hero-bg-image{
+    position:absolute; inset:0; z-index:-1;
+    overflow:hidden; pointer-events:none;
+  }
+  .hero-bg-image img{
+    width:100%; height:100%; object-fit:cover; opacity:.9;
+  }
+  .hero-bg-image::after{
+    content:'';
+    position:absolute; inset:0;
+    background: linear-gradient(90deg, rgba(18,17,16,.85) 0%, rgba(18,17,16,.6) 35%, rgba(18,17,16,.1) 65%, rgba(18,17,16,0) 100%);
+  }
+
+  /* El texto del hero estaba pensado para fondo claro (colores oscuros).
+     Con el degradado gris oscuro detrás, se aclara SOLO aquí para que
+     siga siendo legible. La frase resaltada en amarillo (.hl) se queda
+     oscura a propósito: mejor contraste sobre su propio fondo amarillo. */
+  .hero h1{ color:var(--white); }
+  .hero h1 .hl{ color:var(--charcoal); }
+  .hero p.lead{ color:var(--concrete); }
+  .hero .eyebrow{ color:var(--yellow-pale); }
+  .hero .eyebrow::before{ background:var(--yellow-pale); }
+  .hero-actions .btn-outline{ border-color:var(--white); color:var(--white); }
+  .hero-actions .btn-outline:hover{ background:var(--white); color:var(--charcoal); }
+
   .hero-inner{ padding-bottom:70px; position:relative; z-index:1; }
   .hero-baseline{ position:relative; z-index:1; }
   .hero-grid{ display:grid; grid-template-columns:1.1fr .9fr; gap:50px; align-items:center; }
@@ -465,6 +500,13 @@
 
 <!-- ================= HERO ================= -->
 <section class="hero">
+  <!-- imagen1.png — FONDO DEL HERO. Si el archivo no existe aún, onerror
+       oculta la capa completa y no pasa nada; el hero se ve igual que
+       antes. Sube la foto real con este nombre exacto para activarla. -->
+  <div class="hero-bg-image" aria-hidden="true">
+    <img src="imagen1.png" alt="" onerror="this.parentElement.style.display='none';">
+  </div>
+
   <div class="wrap hero-inner">
     <div class="hero-grid">
       <div class="reveal in">
